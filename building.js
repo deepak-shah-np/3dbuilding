@@ -7,7 +7,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZGVlcGFrMDAwIiwiYSI6ImNrazQycng1ZjEwM3cycG9iZ
 if (!mapboxgl.supported()) {
     alert('Your browser does not support Mapbox GL, please use a more recent browser');
 } else {
-    var center = [-122.449310, 37.789714];
+    var center = [-122.449310, 37.799714];
 
     var map = new mapboxgl.Map({
         container: "map",
@@ -26,51 +26,52 @@ if (!mapboxgl.supported()) {
 
 
 
+    // map.on("load", function () {
+    //     map.addLayer({
+    //         id: "lv3",
+    //         type: "fill-extrusion",
+    //         source: {
+    //             type: "geojson",
+    //             data:
+    //                 "https://raw.githubusercontent.com/hello-deepak/3dbuilding/master/ynuv-fyni.geojson"
+    //         },
+    //         paint: {
+    //             // Get fill-extrusion-height from the source 'height' property.
+    //             "fill-extrusion-height": 0,
+
+    //             // Get fill-extrusion-base from the source 'base_height' property.
+    //             "fill-extrusion-base": 0,
+
+    //             // Make extrusions slightly opaque for see through indoor walls.
+    //             "fill-extrusion-opacity": 0.4,
+
+    //             "fill-extrusion-color": 'gray'
+    //         }
+    //     });
+    // });
+
+    // map.addSou
+
     map.on("load", function () {
         map.addLayer({
-            id: "lv3",
+            id: "buildings-footprint",
             type: "fill-extrusion",
             source: {
                 type: "geojson",
                 data:
-                    "https://raw.githubusercontent.com/hello-deepak/3dbuilding/master/ynuv-fyni.geojson?token=ABZ2AYN2B2XKLYADFYUYH43BT5CL2"
+                    "https://raw.githubusercontent.com/hello-deepak/3dbuilding/master/ynuv-fyni.geojson"
             },
             paint: {
                 // Get fill-extrusion-height from the source 'height' property.
-                "fill-extrusion-height": 0,
-
-                // Get fill-extrusion-base from the source 'base_height' property.
-                "fill-extrusion-base": 0,
-
-                // Make extrusions slightly opaque for see through indoor walls.
-                "fill-extrusion-opacity": 0.4,
-
-                "fill-extrusion-color": 'gray'
-            }
-        });
-    });
-
-    map.addSou
-
-    map.on("load", function () {
-        map.addLayer({
-            id: "buildings-fooprint",
-            type: "fill-extrusion",
-            source: {
-                type: "geojson",
-                data:
-                    "https://raw.githubusercontent.com/hello-deepak/3dbuilding/master/ynuv-fyni.geojson?token=ABZ2AYN2B2XKLYADFYUYH43BT5CL2"
-            },
-            paint: {
-                // Get fill-extrusion-height from the source 'height' property.
-                "fill-extrusion-height": [
+                "fill-extrusion-height": 
+                [
                     'interpolate',
                     ['linear'],
                     ['zoom'],
                     15,
                     0,
                     15.05,
-                    10
+                  //  10
                      ['get','hgt_median_m']
                 ],
 
@@ -82,7 +83,6 @@ if (!mapboxgl.supported()) {
                     15,
                     0,
                     15.05,
-                    
                      ['get', 'gnd_min_m']
                 ],
 
@@ -93,6 +93,31 @@ if (!mapboxgl.supported()) {
             }
         });
     });
+
+
+    // map.on("load", function() {
+    //     map.addLayer({
+    //       id: "extrusion_bld",
+    //       type: "fill-extrusion",
+    //       source: {
+    //         type: "geojson",
+    //         data:
+    //           "https://raw.githubusercontent.com/HP-Nunes/geojson_test/master/v2_bld_exelcisor.geojson"
+    //       },
+    //       paint: {
+    //         // Get fill-extrusion-height from the source 'height' property.
+    //         "fill-extrusion-height": ["get", "gnd1st_del"],
+      
+    //         // Get fill-extrusion-base from the source 'base_height' property.
+    //         "fill-extrusion-base": 0,
+      
+    //         // Make extrusions slightly opaque for see through indoor walls.
+    //         "fill-extrusion-opacity": 0.1,
+      
+    //         "fill-extrusion-color": ["get", "color"]
+    //       }
+    //     });
+    //   });
 
     //   map.on("load", function() {
     //     map.addLayer({
