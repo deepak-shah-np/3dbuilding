@@ -1,6 +1,4 @@
 
-
-
 mapboxgl.accessToken = 'pk.eyJ1IjoiZGVlcGFrMDAwIiwiYSI6ImNrazQycng1ZjEwM3cycG9iZXd4MjFjamgifQ.5weuL4VO1EzrbXhg_QGFZQ';
 
 
@@ -20,38 +18,6 @@ if (!mapboxgl.supported()) {
     });
 
 
-
-
-
-
-
-
-    // map.on("load", function () {
-    //     map.addLayer({
-    //         id: "lv3",
-    //         type: "fill-extrusion",
-    //         source: {
-    //             type: "geojson",
-    //             data:
-    //                 "https://raw.githubusercontent.com/hello-deepak/3dbuilding/master/ynuv-fyni.geojson"
-    //         },
-    //         paint: {
-    //             // Get fill-extrusion-height from the source 'height' property.
-    //             "fill-extrusion-height": 0,
-
-    //             // Get fill-extrusion-base from the source 'base_height' property.
-    //             "fill-extrusion-base": 0,
-
-    //             // Make extrusions slightly opaque for see through indoor walls.
-    //             "fill-extrusion-opacity": 0.4,
-
-    //             "fill-extrusion-color": 'gray'
-    //         }
-    //     });
-    // });
-
-    // map.addSou
-
     map.on("load", function () {
         map.addLayer({
             id: "buildings-footprint",
@@ -63,28 +29,20 @@ if (!mapboxgl.supported()) {
             },
             paint: {
                 // Get fill-extrusion-height from the source 'height' property.
-                "fill-extrusion-height": 
-                [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                  //  10
-                     ['get','hgt_median_m']
-                ],
+                "fill-extrusion-height":
+                    [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        15,
+                        0,
+                        15.05,
+                        //  10
+                        ['get', 'hgt_median_m']
+                    ],
 
                 // Get fill-extrusion-base from the source 'base_height' property.
-                "fill-extrusion-base": [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                     ['get', 'gnd_min_m']
-                ],
+                "fill-extrusion-base": 0,
 
                 // Make extrusions slightly opaque for see through indoor walls.
                 "fill-extrusion-opacity": 0.6,
@@ -95,50 +53,91 @@ if (!mapboxgl.supported()) {
     });
 
 
-    // map.on("load", function() {
-    //     map.addLayer({
-    //       id: "extrusion_bld",
-    //       type: "fill-extrusion",
-    //       source: {
-    //         type: "geojson",
-    //         data:
-    //           "https://raw.githubusercontent.com/HP-Nunes/geojson_test/master/v2_bld_exelcisor.geojson"
-    //       },
-    //       paint: {
-    //         // Get fill-extrusion-height from the source 'height' property.
-    //         "fill-extrusion-height": ["get", "gnd1st_del"],
-      
-    //         // Get fill-extrusion-base from the source 'base_height' property.
-    //         "fill-extrusion-base": 0,
-      
-    //         // Make extrusions slightly opaque for see through indoor walls.
-    //         "fill-extrusion-opacity": 0.1,
-      
-    //         "fill-extrusion-color": ["get", "color"]
-    //       }
-    //     });
-    //   });
-
-    //   map.on("load", function() {
-    //     map.addLayer({
-    //       id: "lots",
-    //       type: "line",
-    //       paint: {
-    //         "line-width": 3,
-    //         "line-color": 'green',
-    //         "line-dasharray": [4, 1]
-    //       },
-    //       source: {
-    //         type: "geojson",
-    //         data:
-    //           "https://data.sfgov.org/resource/ynuv-fyni.geojson"
-    //       }
-    //     });
-    //   });
 
 
+    map.on('click', function (e) {
+        var feature = queryFeatures(e.point)
 
+        feature = map.getZoom() > 17 ? queryFeatures(null, feature.properties.id) : feature
+
+
+        onSelectBuilding(feature)
+    })
+
+}
+
+
+function queryFeatures(query, id) {
+    var options = { layers: ['buildings-footprint'] }
+    if (id) options.filter = ['==', 'id', id]
+
+    var features = id ? map.queryRenderedFeatures(options) : map.queryRenderedFeatures(query, options);
+    console.log(features);
+    var data = features[0];
+    if (features.length > 1) {
+        data = {
+            type: 'Feature',
+            geometry: features[0].geometry,
+            properties: features[0].properties
+        };
+        for (var i = 1, len = features.length; i < len; i++) {
+            var f1 = {
+                type: 'Feature',
+                geometry: features[i].geometry,
+                properties: features[i].properties
+            };
+
+            data = turf.union(data, f1);
+            console.log(f1);
+        }
+    }
+    data['name']=makeid(9);
+    return data
+}
 
 
 
+function onSelectBuilding(feature) {
+    var randomid = makeid(10);
+    console.log(randomid)
+    map.addSource(randomid, {
+        'type': 'geojson',
+        'data': feature
+    })
+
+        map.addLayer({
+            id: feature['name'],
+            type: "fill-extrusion",
+            source: randomid,
+            paint: {
+                // Get fill-extrusion-height from the source 'height' property.
+                "fill-extrusion-height": 20,
+
+                // Get fill-extrusion-base from the source 'base_height' property.
+                "fill-extrusion-base": ['get', 'hgt_median_m'],
+
+                // Make extrusions slightly opaque for see through indoor walls.
+                "fill-extrusion-opacity": 0.8,
+
+                "fill-extrusion-color": 'yellow'
+            }
+        });
+   
+
+    console.log(map)
+
+
+
+}
+
+
+function makeid(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
 }
