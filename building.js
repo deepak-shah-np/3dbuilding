@@ -88,7 +88,7 @@ function queryFeatures(query, id) {
             };
 
             data = turf.union(data, f1);
-            console.log(f1);
+           
         }
     }
     data['name']=makeid(9);
@@ -124,7 +124,7 @@ function onSelectBuilding(feature) {
         });
    
 
-    console.log(map)
+
 
 
 
